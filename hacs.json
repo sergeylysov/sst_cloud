@@ -1,0 +1,6 @@
+{
+  "name": "sst_cloud",
+  "domains": ["binary_sensor", "sensor", "switch"],
+  "iot_class": "Cloud Polling",
+  "homeassistant": "2021.5.0"
+}
