@@ -1,0 +1,1 @@
+DOMAIN = "sst_cloud"
