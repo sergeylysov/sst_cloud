@@ -112,7 +112,7 @@ class LeakModule:
 
     @property
     def get_device_id(self) -> str:
-        return self._device_id
+        return self._id
 
     @property
     def get_device_name(self) -> str:
