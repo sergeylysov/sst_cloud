@@ -35,8 +35,115 @@ class SST:
                 json_device = json.loads(response.text)
                 if json_device["type"] == 7:
                     self.devices.append(LeakModule(json_device, self))
+                if json_device["type"] == 2:
+                    self.devices.append(NeptunProwWiFi(json_device, self))
+#Neptun ProW+ WiFi
+class NeptunProwWiFi:
+    def __init__(self, moduleDescription: json, sst: SST):
+        self._sst = sst
+        config = json.loads(moduleDescription["parsed_configuration"])
+        self._access_status = config["access_status"]  # Main device "available" is true
+        self._device_name = moduleDescription["name"]
+        self._house_id = moduleDescription["house"]
+        self._type = moduleDescription["type"] #2
+        self._id = moduleDescription["id"]
+        self._valves_state = config["settings"]["valve_settings"]
+        self.alert_status = config["settings"]["status"]["alert"]
+        self.counters = []
+        response = requests.get(SST_CLOUD_API_URL +
+                                "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/counters",
+                                headers={"Authorization": "Token " + self._sst.key})
+        countersJson = json.loads(response.text)
+        for counterDesc in countersJson:
+            self.counters.append(Counter(counterDesc["id"], counterDesc["name"], counterDesc["value"]))
+        self.leakSensors = []
+        # Перебрать статус всех проводных датчиков протечки
+        for leakSensorDesc in config["lines_status"]:
+            self.leakSensors.append(
+                LeakSensor(leakSensorDesc, config["lines_status"][leakSensorDesc]))
+        self.wirelessLeakSensors = []
+        response = requests.get(SST_CLOUD_API_URL +
+                                "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/wireless_sensors",
+                                headers={"Authorization": "Token " + self._sst.key})
+        wirelessSensors = json.loads(response.text)
+        # Перебираем все беспроводные датчики
+        for wirelessSensorDesc in wirelessSensors:
+            self.wirelessLeakSensors.append(WirelessLeakSensor(wirelessSensorDesc))
 
+        def close_valve(self):
+            requests.patch(SST_CLOUD_API_URL +
+                           "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/valve_settings/",
+                           json={"valve_settings":"closed"},
+                           headers={"Authorization": "Token " + self._sst.key})
+            self._valves_state = "closed"
 
+        def open_valve(self):
+            requests.patch(SST_CLOUD_API_URL +
+                           "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/valve_settings/",
+                           json={"valve_settings":"opened"},
+                           headers={"Authorization": "Token " + self._sst.key})
+            self._valves_state = "opened"
+
+        @property
+        def get_avalible_status(self) -> bool:
+            if self._access_status == "available":
+                return "true"
+            else:
+                return "false"
+
+        @property
+        def get_device_id(self) -> str:
+            return self._id
+
+        @property
+        def get_device_name(self) -> str:
+            return self._device_name
+
+        @property
+        def get_device_type(self) -> int:
+            return self._type
+
+        @property
+        def get_valves_state(self) -> str:
+            # opened or closed
+            return self._valves_state
+
+        def update(self) -> None:
+            # Обновляем парметры модуля
+            response = requests.get(SST_CLOUD_API_URL +
+                                    "houses/" + str(self._house_id) + "/devices/" + str(self._id),
+                                    headers={"Authorization": "Token " + self._sst.key})
+            json_device = json.loads(response.text)
+            config = json.loads(json_device["parsed_configuration"])
+            self._access_status = config["access_status"]  # Main device "available" is true
+            self._device_name = json_device["name"]
+            self._house_id = json_device["house"]
+            self._type = json_device["type"]
+            self._id = json_device["id"]
+            self._valves_state = config["settings"]["valve_settings"]
+            self.alert_status = config["settings"]["status"]["alert"]
+
+            # Обновляем статус счетчиков
+            response = requests.get(SST_CLOUD_API_URL +
+                                    "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/counters",
+                                    headers={"Authorization": "Token " + self._sst.key})
+            countersJson = json.loads(response.text)
+            for counter in self.counters:
+                counter.update(countersJson)
+
+            # Обновляем статус датчиков
+            for leakSensor in self.leakSensors:
+                leakSensor.update(config["lines_status"])
+            # Обновляем статус беспроводных датчиков
+            response = requests.get(SST_CLOUD_API_URL +
+                                    "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/wireless_sensors",
+                                    headers={"Authorization": "Token " + self._sst.key})
+            # print(response.text)
+            wirelessSensorsJson = json.loads(response.text)
+            for wirelessSensor in self.wirelessLeakSensors:
+                wirelessSensor.update(wirelessSensorsJson)
+
+#Neptun Smart
 class LeakModule:
     def __init__(self, moduleDescription: json, sst: SST):
         self._sst = sst
@@ -45,7 +152,7 @@ class LeakModule:
         self._device_id = config["device_id"]
         self._device_name = moduleDescription["name"]
         self._house_id = moduleDescription["house"]
-        self._type = moduleDescription["type"]
+        self._type = moduleDescription["type"] #7
         self._id = moduleDescription["id"]
         self._first_group_valves_state = config["module_settings"]["module_config"]["first_group_valves_state"]
         self._second_group_valves_state = config["module_settings"]["module_config"]["second_group_valves_state"]
@@ -55,7 +162,6 @@ class LeakModule:
         response = requests.get(SST_CLOUD_API_URL +
                                 "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/counters",
                                 headers={"Authorization": "Token " + self._sst.key})
-        print(response.text)
         countersJson = json.loads(response.text)
         for counterDesc in countersJson:
             self.counters.append(Counter(counterDesc["id"], counterDesc["name"], counterDesc["value"]))
@@ -70,7 +176,6 @@ class LeakModule:
                                 "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/wireless_sensors",
                                 headers={"Authorization": "Token " + self._sst.key})
         wirelessSensors = json.loads(response.text)
-        print(response.text)
         # Перебираем все беспроводные датчики
         for wirelessSensorDesc in wirelessSensors:
             self.wirelessLeakSensors.append(WirelessLeakSensor(wirelessSensorDesc))

@@ -14,18 +14,22 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
     new_devices = []
     for module in sst1.devices:
-        new_devices.append(MainModule(module))
+        if module.get_device_type == 7:
+            new_devices.append(MainModule(module))
+        if module.get_device_type == 2:
+            new_devices.append(MainModuleNeptunProw(module))
         for leakSensor in module.leakSensors:
-
             new_devices.append(LeakSensorAlert(leakSensor,module))
         for wSensor in module.wirelessLeakSensors:
             new_devices.append(WirelessLeakSensorAlert(wSensor,module))
             new_devices.append(WirelessLeakSensorLost(wSensor,module))
             new_devices.append(WirelessLeakSensorBatteryDischarge(wSensor,module))
-        new_devices.append(SecondGroupModuleAlert(module))
-        new_devices.append(FirstGroupModuleAlert(module))
+        if module.get_device_type == 7:
+            new_devices.append(SecondGroupModuleAlert(module))
+            new_devices.append(FirstGroupModuleAlert(module))
         if new_devices:
             async_add_entities(new_devices)
+
 
 
 class WirelessLeakSensorAlert(Entity):
@@ -273,6 +277,49 @@ class MainModule(Entity):
             "name": self._module.get_device_name,
             "sw_version": "none",
             "model": "Neptun Smart",
+            "manufacturer": "SST",
+        }
+
+    @property
+    def icon(self):
+        return "mdi:water-pump"
+
+    @property
+    def is_on(self) -> bool:
+        return self._is_on
+
+    #@final
+    @property
+    def state(self) -> Literal["on", "off"] | None:
+        if (is_on := self.is_on) is None:
+            return None
+        return "on" if is_on else "off"
+
+    def update(self) -> None:
+        self._module.update()
+
+
+class MainModuleNeptunProw(Entity):
+
+    _attr_device_class = BinarySensorDeviceClass.PROBLEM
+
+    def __init__(self, module: sst.NeptunProwWiFi):
+
+        self._module = module
+        self.is_on = self._module.alert_status
+        # Уникальный идентификатор
+        self._attr_unique_id = f"{self._module.get_device_id}_main_module"
+        # Отображаемое имя
+        self._attr_name = f"Neptun {self._module.get_device_name}"
+
+
+    @property
+    def device_info(self):
+        return {
+            "identifiers": {(DOMAIN, self._module.get_device_id)},
+            "name": self._module.get_device_name,
+            "sw_version": "none",
+            "model": "Neptun Prow+ WiFi",
             "manufacturer": "SST",
         }
 

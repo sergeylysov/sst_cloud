@@ -3,12 +3,12 @@
   "name": "SST Cloud integration",
   "config_flow": true,
   "documentation": "https://github.com/sergeylysov/sst_cloud",
-  "requirements": ["requests","requests"],
+  "requirements": ["requests","json"],
   "ssdp": [],
   "zeroconf": [],
   "homekit": {},
   "dependencies": [],
   "codeowners": ["@sergeylysov"],
   "iot_class": "cloud_polling",
-  "version": "0.1.1"
+  "version": "0.1.2"
 }

@@ -12,8 +12,11 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     sst1 = hass.data[DOMAIN][config_entry.entry_id]
     new_devices = []
     for module in sst1.devices:
-        new_devices.append(WaterSwitchFirstGroup(module))
-        new_devices.append(WaterSwitchSecondGroup(module))
+        if module.get_device_type == 7:
+            new_devices.append(WaterSwitchFirstGroup(module))
+            new_devices.append(WaterSwitchSecondGroup(module))
+        if module.get_device_type == 2:
+            new_devices.append(WaterSwitch(module))
     async_add_entities(new_devices)
 
 
@@ -81,6 +84,41 @@ class WaterSwitchSecondGroup(SwitchEntity):
 
     def turn_off(self, **kwargs):
         self._module.close_valve_second_group()
+
+    @property
+    def device_info(self):
+        return {"identifiers": {(DOMAIN, self._module.get_device_id)}}
+
+    @property
+    def icon(self):
+        return "mdi:pipe-valve"
+
+class WaterSwitch(SwitchEntity):
+    def __init__(self, module: sst.NeptunProwWiFi):
+        self._module = module
+        self._attr_unique_id = f"{self._module.get_device_id}_WaterSwitch"
+        if self._module.get_valves_state == "opened":
+            self._is_on = True
+        else:
+            self._is_on = False
+
+    @property
+    def name(self):
+        return "WaterSwitch"
+
+    @property
+    def is_on(self):
+        if self._module.get_valves_state == "opened":
+            self._is_on = True
+        else:
+            self._is_on = False
+        return self._is_on
+
+    def turn_on(self, **kwargs):
+        self._module.open_valve()
+
+    def turn_off(self, **kwargs):
+        self._module.close_valve()
 
     @property
     def device_info(self):
