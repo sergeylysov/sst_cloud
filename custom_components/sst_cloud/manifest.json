@@ -3,7 +3,7 @@
   "name": "SST Cloud integration",
   "config_flow": true,
   "documentation": "https://github.com/sergeylysov/sst_cloud",
-  "requirements": ["requests","json"],
+  "requirements": ["requests","requests"],
   "ssdp": [],
   "zeroconf": [],
   "homekit": {},
