@@ -68,47 +68,47 @@ class NeptunProwWiFi:
         wirelessSensors = json.loads(response.text)
         # Перебираем все беспроводные датчики
         for wirelessSensorDesc in wirelessSensors:
-            self.wirelessLeakSensors.append(WirelessLeakSensor(wirelessSensorDesc))
+            self.wirelessLeakSensors.append(WirelessLeakSensor443(wirelessSensorDesc))
 
-        def close_valve(self):
-            requests.patch(SST_CLOUD_API_URL +
+    def close_valve(self):
+            requests.post(SST_CLOUD_API_URL +
                            "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/valve_settings/",
                            json={"valve_settings":"closed"},
                            headers={"Authorization": "Token " + self._sst.key})
             self._valves_state = "closed"
 
-        def open_valve(self):
-            requests.patch(SST_CLOUD_API_URL +
+    def open_valve(self):
+            requests.post(SST_CLOUD_API_URL +
                            "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/valve_settings/",
                            json={"valve_settings":"opened"},
                            headers={"Authorization": "Token " + self._sst.key})
             self._valves_state = "opened"
 
-        @property
-        def get_avalible_status(self) -> bool:
+    @property
+    def get_avalible_status(self) -> bool:
             if self._access_status == "available":
                 return "true"
             else:
                 return "false"
 
-        @property
-        def get_device_id(self) -> str:
+    @property
+    def get_device_id(self) -> str:
             return self._id
 
-        @property
-        def get_device_name(self) -> str:
+    @property
+    def get_device_name(self) -> str:
             return self._device_name
 
-        @property
-        def get_device_type(self) -> int:
+    @property
+    def get_device_type(self) -> int:
             return self._type
 
-        @property
-        def get_valves_state(self) -> str:
+    @property
+    def get_valves_state(self) -> str:
             # opened or closed
             return self._valves_state
 
-        def update(self) -> None:
+    def update(self) -> None:
             # Обновляем парметры модуля
             response = requests.get(SST_CLOUD_API_URL +
                                     "houses/" + str(self._house_id) + "/devices/" + str(self._id),
@@ -320,12 +320,13 @@ class LeakSensor:
 
 class WirelessLeakSensor:
     def __init__(self, wirelessLeakSensorDescription):
+        self._type = 868
         self._name = wirelessLeakSensorDescription["name"]
         self._battery_level = wirelessLeakSensorDescription["battery"]
         self._alert = wirelessLeakSensorDescription["attention"]
-        self._lost = wirelessLeakSensorDescription["sensor_lost"]
-        self._battery_discharge = wirelessLeakSensorDescription["battery_discharge"]
-        self._serial = wirelessLeakSensorDescription["serial_number"]
+        self._lost = wirelessLeakSensorDescription["sensor_lost"] #!
+        self._battery_discharge = wirelessLeakSensorDescription["battery_discharge"] #!
+        self._serial = wirelessLeakSensorDescription["serial_number"] #!
 
 
     @property
@@ -352,6 +353,10 @@ class WirelessLeakSensor:
     def get_wireless_leak_sensor_battery_discharge(self) -> bool:
         return self._battery_discharge
 
+    @property
+    def get_type(self) -> int:
+        return self._type
+
     def update(self, wireless_sensor_description: str):
         for sensor_desc in wireless_sensor_description:
             if sensor_desc["name"] == self._name:
@@ -359,3 +364,43 @@ class WirelessLeakSensor:
                 self._alert = sensor_desc["attention"]
                 self._lost = sensor_desc["sensor_lost"]
                 self._battery_discharge = sensor_desc["battery_discharge"]
+
+
+class WirelessLeakSensor443:
+    def __init__(self, wirelessLeakSensorDescription):
+        self._name = wirelessLeakSensorDescription["name"]
+        self._battery_level = wirelessLeakSensorDescription["battery"]
+        self._alert = wirelessLeakSensorDescription["attention"]
+        self._line = wirelessLeakSensorDescription["line"]
+        self._type = 443
+
+
+    @property
+    def get_type(self) -> int:
+        return self._type
+
+    @property
+    def get_line(self) -> int:
+        return self._line
+
+    @property
+    def get_wireless_leak_sensor_name(self) -> str:
+        return self._name
+
+    @property
+    def get_wireless_leak_sensor_battery_level(self) -> int:
+        return self._battery_level
+
+    @property
+    def get_wireless_leak_sensor_alert_status(self) -> bool:
+        return self._alert
+
+    @property
+    def get_wireless_leak_serial_number(self) -> str:
+        return self._name + "line" + str(self._line)
+
+    def update(self, wireless_sensor_description: str):
+        for sensor_desc in wireless_sensor_description:
+            if sensor_desc["name"] == self._name:
+                self._battery_level = sensor_desc["battery"]
+                self._alert = sensor_desc["attention"]

@@ -22,8 +22,9 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             new_devices.append(LeakSensorAlert(leakSensor,module))
         for wSensor in module.wirelessLeakSensors:
             new_devices.append(WirelessLeakSensorAlert(wSensor,module))
-            new_devices.append(WirelessLeakSensorLost(wSensor,module))
-            new_devices.append(WirelessLeakSensorBatteryDischarge(wSensor,module))
+            if module.get_device_type == 7:
+                new_devices.append(WirelessLeakSensorLost(wSensor,module))
+                new_devices.append(WirelessLeakSensorBatteryDischarge(wSensor,module))
         if module.get_device_type == 7:
             new_devices.append(SecondGroupModuleAlert(module))
             new_devices.append(FirstGroupModuleAlert(module))
@@ -36,7 +37,7 @@ class WirelessLeakSensorAlert(Entity):
 
     _attr_device_class = BinarySensorDeviceClass.PROBLEM
 
-    def __init__(self, wirelessLeakSensor: sst.WirelessLeakSensor, module: sst.LeakModule):
+    def __init__(self, wirelessLeakSensor, module):
         self._sensor = wirelessLeakSensor
         self._module = module
         # Уникальный идентификатор
@@ -112,7 +113,7 @@ class WirelessLeakSensorLost(Entity):
 
     _attr_device_class = BinarySensorDeviceClass.PROBLEM
 
-    def __init__(self, wirelessLeakSensor: sst.WirelessLeakSensor, module: sst.LeakModule):
+    def __init__(self, wirelessLeakSensor, module: sst.LeakModule):
         self._sensor = wirelessLeakSensor
         self._module = module
         # Уникальный идентификатор
@@ -291,6 +292,10 @@ class MainModule(Entity):
     #@final
     @property
     def state(self) -> Literal["on", "off"] | None:
+        if (self._module.second_group_alarm == "true") | (self._module.first_group_alarm == "true"):
+            self._is_on = True
+        else:
+            self._is_on = False
         if (is_on := self.is_on) is None:
             return None
         return "on" if is_on else "off"
@@ -306,7 +311,7 @@ class MainModuleNeptunProw(Entity):
     def __init__(self, module: sst.NeptunProwWiFi):
 
         self._module = module
-        self.is_on = self._module.alert_status
+        self._is_on = self._module.alert_status
         # Уникальный идентификатор
         self._attr_unique_id = f"{self._module.get_device_id}_main_module"
         # Отображаемое имя
@@ -334,9 +339,8 @@ class MainModuleNeptunProw(Entity):
     #@final
     @property
     def state(self) -> Literal["on", "off"] | None:
-        if (is_on := self.is_on) is None:
-            return None
-        return "on" if is_on else "off"
+        self._is_on = self._module.alert_status
+        return self._is_on
 
     def update(self) -> None:
         self._module.update()

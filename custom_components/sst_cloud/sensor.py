@@ -62,7 +62,7 @@ class WirelessLeakSensorBattery(Entity):
     _attr_device_class = SensorDeviceClass.BATTERY
     _attr_state_class = SensorStateClass.MEASUREMENT
 
-    def __init__(self, wirelessLeakSensor: sst.WirelessLeakSensor, module: sst.LeakModule):
+    def __init__(self, wirelessLeakSensor, module):
         self._sensor = wirelessLeakSensor
         self._module = module
         # Уникальный идентификатор
