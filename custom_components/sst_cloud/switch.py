@@ -17,6 +17,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             new_devices.append(WaterSwitchSecondGroup(module))
         if module.get_device_type == 2:
             new_devices.append(WaterSwitch(module))
+        new_devices.append((Washing_floors_mode(module)))
     async_add_entities(new_devices)
 
 
@@ -127,3 +128,41 @@ class WaterSwitch(SwitchEntity):
     @property
     def icon(self):
         return "mdi:pipe-valve"
+
+
+class Washing_floors_mode(SwitchEntity):
+    def __init__(self, module):
+        self._module = module
+        self._attr_unique_id = f"{self._module.get_device_id}_washing_floors_mode"
+        if self._module.get_washing_floors_mode == "on":
+            self._is_on = True
+        else:
+            self._is_on = False
+
+    @property
+    def name(self):
+        return "Washing_floors_mode"
+
+    @property
+    def is_on(self):
+        if self._module.get_washing_floors_mode == "on":
+            self._is_on = True
+        else:
+            self._is_on = False
+        return self._is_on
+
+    def turn_on(self):
+        self._module.set_on_washing_floors_mode()
+        self._is_on = True
+
+    def turn_off(self):
+        self._module.set_off_washing_floors_mode()
+        self._is_on = False
+
+    @property
+    def device_info(self):
+        return {"identifiers": {(DOMAIN, self._module.get_device_id)}}
+
+    @property
+    def icon(self):
+        return "mdi:pail"

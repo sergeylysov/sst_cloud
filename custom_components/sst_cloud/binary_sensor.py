@@ -77,7 +77,7 @@ class LeakSensorAlert(Entity):
         self._sensor = leakSensor
         self._module = module
         # Уникальный идентификатор
-        self._attr_unique_id = f"{self._sensor.get_leak_sensor_name}_leakSensorAlert"
+        self._attr_unique_id = f"{self._sensor.get_leak_sensor_name}_leakSensorAlertOfModule"+str(self._module.get_device_id)
         # Отображаемое имя
         self._attr_name = f"LeakSensor {self._sensor.get_leak_sensor_name}"
         # Текущее значение

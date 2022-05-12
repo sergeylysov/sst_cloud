@@ -49,6 +49,7 @@ class NeptunProwWiFi:
         self._id = moduleDescription["id"]
         self._valves_state = config["settings"]["valve_settings"]
         self.alert_status = config["settings"]["status"]["alert"]
+        self._dry_flag = config["settings"]["dry_flag"]
         self.counters = []
         response = requests.get(SST_CLOUD_API_URL +
                                 "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/counters",
@@ -83,6 +84,19 @@ class NeptunProwWiFi:
                            json={"valve_settings":"opened"},
                            headers={"Authorization": "Token " + self._sst.key})
             self._valves_state = "opened"
+    def set_on_washing_floors_mode(self):
+        requests.post(SST_CLOUD_API_URL +
+                       "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/dry_flag/",
+                       json={"dry_flag":"on"},
+                       headers={"Authorization": "Token " + self._sst.key})
+        self._dry_flag = "on"
+    def set_off_washing_floors_mode(self):
+        requests.post(SST_CLOUD_API_URL +
+                       "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/dry_flag/",
+                       json={"dry_flag": "off"},
+                       headers={"Authorization": "Token " + self._sst.key})
+        self._dry_flag = "off"
+
 
     @property
     def get_avalible_status(self) -> bool:
@@ -107,6 +121,9 @@ class NeptunProwWiFi:
     def get_valves_state(self) -> str:
             # opened or closed
             return self._valves_state
+    @property
+    def get_washing_floors_mode(self)-> str:
+        return self._dry_flag
 
     def update(self) -> None:
             # Обновляем парметры модуля
@@ -158,6 +175,7 @@ class LeakModule:
         self._second_group_valves_state = config["module_settings"]["module_config"]["second_group_valves_state"]
         self.first_group_alarm = config["module_settings"]["module_status"]["first_group_alarm"]
         self.second_group_alarm = config["module_settings"]["module_status"]["second_group_alarm"]
+        self._washing_floors_mode = config["module_settings"]["module_status"]["washing_floors_mode"]
         self.counters = []
         response = requests.get(SST_CLOUD_API_URL +
                                 "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/counters",
@@ -208,6 +226,20 @@ class LeakModule:
                        headers={"Authorization": "Token " + self._sst.key})
         self._second_group_valves_state = "opened"
 
+    def set_on_washing_floors_mode(self):
+        requests.patch(SST_CLOUD_API_URL +
+                       "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/module_settings/",
+                       json={"washing_floors_mode":"on"},
+                       headers={"Authorization": "Token " + self._sst.key})
+        self._washing_floors_mode = "on"
+    def set_off_washing_floors_mode(self):
+        requests.patch(SST_CLOUD_API_URL +
+                       "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/module_settings/",
+                       json={"washing_floors_mode": "off"},
+                       headers={"Authorization": "Token " + self._sst.key})
+        self._washing_floors_mode = "off"
+
+
     @property
     def get_avalible_status(self) -> bool:
         if self._access_status == "available":
@@ -237,6 +269,10 @@ class LeakModule:
         # opened or closed
         return self._second_group_valves_state
 
+    @property
+    def get_washing_floors_mode(self)-> str:
+        return self._washing_floors_mode
+
     def update(self) -> None:
         # Обновляем парметры модуля
         response = requests.get(SST_CLOUD_API_URL +
@@ -254,6 +290,7 @@ class LeakModule:
         self._second_group_valves_state = config["module_settings"]["module_config"]["second_group_valves_state"]
         self.first_group_alarm = config["module_settings"]["module_status"]["first_group_alarm"]
         self.second_group_alarm = config["module_settings"]["module_status"]["second_group_alarm"]
+        self._washing_floors_mode = config["module_settings"]["module_status"]["washing_floors_mode"]
         # Обновляем статус счетчиков
         response = requests.get(SST_CLOUD_API_URL +
                                 "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/counters",
