@@ -28,8 +28,9 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         if module.get_device_type == 7:
             new_devices.append(SecondGroupModuleAlert(module))
             new_devices.append(FirstGroupModuleAlert(module))
-        if new_devices:
-            async_add_entities(new_devices)
+    if new_devices:
+         async_add_entities(new_devices)
+
 
 
 
@@ -79,7 +80,7 @@ class LeakSensorAlert(Entity):
         # Уникальный идентификатор
         self._attr_unique_id = f"{self._sensor.get_leak_sensor_name}_leakSensorAlertOfModule"+str(self._module.get_device_id)
         # Отображаемое имя
-        self._attr_name = f"LeakSensor {self._sensor.get_leak_sensor_name}"
+        self._attr_name = f"LeakSensor {self._sensor.get_frendly_name}"
         # Текущее значение
         self._is_on = self._sensor.get_leak_sensor_alarm_status
         if self._sensor.get_leak_sensor_alarm_status == "yes":

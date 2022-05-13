@@ -59,9 +59,11 @@ class NeptunProwWiFi:
             self.counters.append(Counter(counterDesc["id"], counterDesc["name"], counterDesc["value"]))
         self.leakSensors = []
         # Перебрать статус всех проводных датчиков протечки
+        i = 0
         for leakSensorDesc in config["lines_status"]:
             self.leakSensors.append(
-                LeakSensor(leakSensorDesc, config["lines_status"][leakSensorDesc]))
+                LeakSensor(leakSensorDesc, config["lines_status"][leakSensorDesc],moduleDescription["line_names"][i]))
+            i = i + 1
         self.wirelessLeakSensors = []
         response = requests.get(SST_CLOUD_API_URL +
                                 "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/wireless_sensors",
@@ -186,9 +188,11 @@ class LeakModule:
 
         self.leakSensors = []
         # Перебрать статус всех проводных датчиков протечки
+        i=0
         for leakSensorDesc in config["module_settings"]["wire_lines_status"]:
             self.leakSensors.append(
-                LeakSensor(leakSensorDesc, config["module_settings"]["wire_lines_status"][leakSensorDesc]))
+                LeakSensor(leakSensorDesc, config["module_settings"]["wire_lines_status"][leakSensorDesc],moduleDescription["line_names"][i]))
+            i=i+1
         self.wirelessLeakSensors = []
         response = requests.get(SST_CLOUD_API_URL +
                                 "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/wireless_sensors",
@@ -340,8 +344,15 @@ class LeakSensor:
     def __init__(self, name: str, status: str):
         self._name = name
         self._alarm = status
+    def __init__(self, name: str, status: str, frendly_name: str):
+        self._name = name
+        self._alarm = status
+        self._frendly_name = frendly_name
 
-    #  print("name = "+self._name+" alarm = "+self._alarm)
+    @property
+    def get_frendly_name(self) -> str:
+        return self._frendly_name
+
     @property
     def get_leak_sensor_name(self) -> str:
         return self._name
