@@ -141,7 +141,7 @@ class NeptunProwWiFi:
             self._id = json_device["id"]
             self._valves_state = config["settings"]["valve_settings"]
             self.alert_status = config["settings"]["status"]["alert"]
-
+            self._dry_flag = config["settings"]["dry_flag"]
             # Обновляем статус счетчиков
             response = requests.get(SST_CLOUD_API_URL +
                                     "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/counters",
