@@ -20,7 +20,11 @@ Unofficial SST Cloud integration for Home Assistant
 ![изображение](https://user-images.githubusercontent.com/18576858/166641784-4cb8b22b-7789-4bc6-942e-467077b82e06.png)
 
 (Если такая интеграция не находится, Ctrl + F5, чтобы обновить кэш браузера)
+
 Ввести логин и пароль.
+
+![изображение](https://user-images.githubusercontent.com/18576858/187661775-a3f47f99-b9bb-427c-bf5b-c85fd4b93172.png)
+
 
 ## Вариант 2 - Вручную
 1) Cкопировать каталог sst_cloud из репозитория в папку custom_components на сервере Home Assistant
@@ -31,4 +35,8 @@ Unofficial SST Cloud integration for Home Assistant
 ![изображение](https://user-images.githubusercontent.com/18576858/166641784-4cb8b22b-7789-4bc6-942e-467077b82e06.png)
 
 (Если такая интеграция не находится, Ctrl + F5, чтобы обновить кэш браузера)
+
 Ввести логин и пароль.
+
+![изображение](https://user-images.githubusercontent.com/18576858/187661824-b0b3ee11-983a-4e59-bf56-4277e97bb2e0.png)
+
