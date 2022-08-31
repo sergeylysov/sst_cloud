@@ -407,7 +407,7 @@ class WirelessLeakSensor:
 
     def update(self, wireless_sensor_description: str):
         for sensor_desc in wireless_sensor_description:
-            if sensor_desc["name"] == self._name:
+            if sensor_desc["serial_number"] == self._serial:
                 self._battery_level = sensor_desc["battery"]
                 self._alert = sensor_desc["attention"]
                 self._lost = sensor_desc["sensor_lost"]
