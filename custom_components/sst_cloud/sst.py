@@ -37,6 +37,89 @@ class SST:
                     self.devices.append(LeakModule(json_device, self))
                 if json_device["type"] == 2:
                     self.devices.append(NeptunProwWiFi(json_device, self))
+                if json_device["type"] == 3:
+                    self.devices.append(ThermostatEquation(json_device, self))
+
+#Thermostat Equation
+class ThermostatEquation:
+    def __init__(self,moduleDescription: json, sst: SST):
+        self._sst = sst
+        config = json.loads(moduleDescription["parsed_configuration"])
+        self._access_status = config["access_status"]
+        self._id = moduleDescription["id"]
+        self._device_name = moduleDescription["name"]
+        self._house_id = moduleDescription["house"]
+        self._type = moduleDescription["type"] #3
+        self._current_temperature_air = config["current_temperature"]["temperature_air"]
+        self._current_temperature_floor = config["current_temperature"]["temperature_floor"]
+        self._target_temperature = config["settings"]["temperature_manual"]
+        self._status = config["settings"]["status"]
+
+    def update(self) -> None:
+        # Обновляем парметры модуля
+        response = requests.get(SST_CLOUD_API_URL +
+                                "houses/" + str(self._house_id) + "/devices/" + str(self._id),
+                                headers={"Authorization": "Token " + self._sst.key})
+        moduleDescription = json.loads(response.text)
+        config = json.loads(moduleDescription["parsed_configuration"])
+        self._access_status = config["access_status"]
+        self._device_name = moduleDescription["name"]
+        self._house_id = moduleDescription["house"]
+        self._type = moduleDescription["type"]  # 3
+        self._current_temperature_air = config["current_temperature"]["temperature_air"]
+        self._current_temperature_floor = config["current_temperature"]["temperature_floor"]
+        self._target_temperature = config["settings"]["temperature_manual"]
+        self._status = config["settings"]["status"]
+    def setTemperature(self,temp) -> None:
+        requests.post(SST_CLOUD_API_URL +
+                      "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/temperature/",
+                      json={"temperature_manual": temp},
+                      headers={"Authorization": "Token " + self._sst.key})
+        self._target_temperature = temp
+
+
+    def switchOn(self) -> None:
+        requests.post(SST_CLOUD_API_URL +
+                      "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/status/",
+                      json={"status": "on"},
+                      headers={"Authorization": "Token " + self._sst.key})
+        self._status="on"
+    def switchOff(self) -> None:
+        requests.post(SST_CLOUD_API_URL +
+                      "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/status/",
+                      json={"status": "off"},
+                      headers={"Authorization": "Token " + self._sst.key})
+        self._status="off"
+
+    @property
+    def get_status(self) -> str:
+        return self._status
+    @property
+    def get_avalible_status(self) -> bool:
+        if self._access_status == "available":
+            return "true"
+        else:
+            return "false"
+
+    @property
+    def get_device_id(self) -> str:
+        return self._id
+
+    @property
+    def get_device_name(self) -> str:
+        return self._device_name
+
+    @property
+    def get_device_type(self) -> int:
+        return self._type
+    @property
+    def get_current_floor_temperature(self) -> int:
+        return self._current_temperature_floor
+
+    @property
+    def get_target_floor_temperature(self) -> int:
+        return self._target_temperature
+
 #Neptun ProW+ WiFi
 class NeptunProwWiFi:
     def __init__(self, moduleDescription: json, sst: SST):

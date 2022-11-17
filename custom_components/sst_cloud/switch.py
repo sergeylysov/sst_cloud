@@ -12,12 +12,13 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     sst1 = hass.data[DOMAIN][config_entry.entry_id]
     new_devices = []
     for module in sst1.devices:
-        if module.get_device_type == 7:
-            new_devices.append(WaterSwitchFirstGroup(module))
-            new_devices.append(WaterSwitchSecondGroup(module))
-        if module.get_device_type == 2:
-            new_devices.append(WaterSwitch(module))
-        new_devices.append((Washing_floors_mode(module)))
+        if module.get_device_type == 7 or module.get_device_type == 2:
+            if module.get_device_type == 7:
+                new_devices.append(WaterSwitchFirstGroup(module))
+                new_devices.append(WaterSwitchSecondGroup(module))
+            if module.get_device_type == 2:
+                new_devices.append(WaterSwitch(module))
+            new_devices.append((Washing_floors_mode(module)))
     async_add_entities(new_devices)
 
 

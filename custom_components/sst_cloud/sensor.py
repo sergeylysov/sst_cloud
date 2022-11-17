@@ -18,14 +18,15 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     #Создать все сенсоры, счетчики, датчики протечки
 
     for module in sst1.devices:
-        for counter in module.counters:
-            new_devices.append(Counter(counter,module))
+        if module.get_device_type == 7 or module.get_device_type == 2:
+            for counter in module.counters:
+                new_devices.append(Counter(counter,module))
 
-        for wSensor in module.wirelessLeakSensors:
-            new_devices.append(WirelessLeakSensorBattery(wSensor,module))
+            for wSensor in module.wirelessLeakSensors:
+                new_devices.append(WirelessLeakSensorBattery(wSensor,module))
 
-        if new_devices:
-            async_add_entities(new_devices)
+            if new_devices:
+                async_add_entities(new_devices)
 
 
 class Counter(Entity):

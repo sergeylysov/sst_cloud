@@ -14,20 +14,21 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
     new_devices = []
     for module in sst1.devices:
-        if module.get_device_type == 7:
-            new_devices.append(MainModule(module))
-        if module.get_device_type == 2:
-            new_devices.append(MainModuleNeptunProw(module))
-        for leakSensor in module.leakSensors:
-            new_devices.append(LeakSensorAlert(leakSensor,module))
-        for wSensor in module.wirelessLeakSensors:
-            new_devices.append(WirelessLeakSensorAlert(wSensor,module))
+        if module.get_device_type == 7 or module.get_device_type == 2:
             if module.get_device_type == 7:
-                new_devices.append(WirelessLeakSensorLost(wSensor,module))
-                new_devices.append(WirelessLeakSensorBatteryDischarge(wSensor,module))
-        if module.get_device_type == 7:
-            new_devices.append(SecondGroupModuleAlert(module))
-            new_devices.append(FirstGroupModuleAlert(module))
+                new_devices.append(MainModule(module))
+            if module.get_device_type == 2:
+                new_devices.append(MainModuleNeptunProw(module))
+            for leakSensor in module.leakSensors:
+                new_devices.append(LeakSensorAlert(leakSensor,module))
+            for wSensor in module.wirelessLeakSensors:
+                new_devices.append(WirelessLeakSensorAlert(wSensor,module))
+                if module.get_device_type == 7:
+                    new_devices.append(WirelessLeakSensorLost(wSensor,module))
+                    new_devices.append(WirelessLeakSensorBatteryDischarge(wSensor,module))
+            if module.get_device_type == 7:
+                new_devices.append(SecondGroupModuleAlert(module))
+                new_devices.append(FirstGroupModuleAlert(module))
     if new_devices:
          async_add_entities(new_devices)
 
