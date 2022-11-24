@@ -1,4 +1,4 @@
-from homeassistant.const import (VOLUME_CUBIC_METERS,PERCENTAGE)
+from homeassistant.const import (VOLUME_CUBIC_METERS,PERCENTAGE,TEMP_CELSIUS)
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
@@ -24,6 +24,10 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
             for wSensor in module.wirelessLeakSensors:
                 new_devices.append(WirelessLeakSensorBattery(wSensor,module))
+        if module.get_device_type == 3 or module.get_device_type == 6:
+            new_devices.append(FloorThemperatureSensor(module))
+            new_devices.append(AirThemperatureSensor(module))
+
 
             if new_devices:
                 async_add_entities(new_devices)
@@ -84,4 +88,62 @@ class WirelessLeakSensorBattery(Entity):
     @property
     def state(self):
         self._state = self._sensor.get_wireless_leak_sensor_battery_level
+        return self._state
+
+
+class AirThemperatureSensor(Entity):
+    _attr_unit_of_measurement = TEMP_CELSIUS
+    _attr_device_class = SensorDeviceClass.TEMPERATURE
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(self, module:sst.ThermostatEquation):
+        self._module = module
+        # Уникальный идентификатор
+        self._attr_unique_id = f"{self._module.get_device_id}_AirThemperatureSensor"
+        # Отображаемое имя
+        self._attr_name = f"AirThemperatureSensor"
+        # Текущее значение
+        self._state = self._module.get_current_air_temperature
+
+
+    @property
+    def device_info(self):
+        return {"identifiers": {(DOMAIN, self._module.get_device_id)}}
+
+    @property
+    def icon(self):
+        return "mdi:thermometer"
+
+    @property
+    def state(self):
+        self._state = self._module.get_current_air_temperature
+        return self._state
+
+
+class FloorThemperatureSensor(Entity):
+    _attr_unit_of_measurement = TEMP_CELSIUS
+    _attr_device_class = SensorDeviceClass.TEMPERATURE
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(self, module:sst.ThermostatEquation):
+        self._module = module
+        # Уникальный идентификатор
+        self._attr_unique_id = f"{self._module.get_device_id}_FloorThemperatureSensor"
+        # Отображаемое имя
+        self._attr_name = f"FloorThemperatureSensor"
+        # Текущее значение
+        self._state = self._module.get_current_floor_temperature
+
+
+    @property
+    def device_info(self):
+        return {"identifiers": {(DOMAIN, self._module.get_device_id)}}
+
+    @property
+    def icon(self):
+        return "mdi:thermometer"
+
+    @property
+    def state(self):
+        self._state = self._module.get_current_floor_temperature
         return self._state

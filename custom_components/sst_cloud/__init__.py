@@ -7,7 +7,7 @@ from . import sst
 from .const import DOMAIN
 import logging
 _LOGGER = logging.getLogger(__name__)
-PLATFORMS: list[str] = ["sensor", "binary_sensor", "switch","climate"]
+PLATFORMS: list[str] = ["climate","sensor", "binary_sensor", "switch"]
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     #Создать объект с подключением к сервису

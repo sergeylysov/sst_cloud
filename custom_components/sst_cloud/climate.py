@@ -21,25 +21,30 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     sst1 = hass.data[DOMAIN][config_entry.entry_id]
+    hass = hass
     new_devices = []
     for module in sst1.devices:
         if module.get_device_type == 3:
-            new_devices.append(Thermostat_equation(module))
+            new_devices.append(Thermostat_equation(module,hass))
         if module.get_device_type == 6:
-            new_devices.append(Thermostat_equation(module))
+            new_devices.append(Thermostat_equation(module,hass))
     async_add_entities(new_devices)
 
 
 class Thermostat_equation(ClimateEntity):
-    def __init__(self, module: sst.ThermostatEquation):
+    def __init__(self, module: sst.ThermostatEquation,hass):
         self._module = module
+        self.hass = hass
         self._attr_unique_id = f"{self._module.get_device_id}_Thermostat_equation"
         self._attr_name = self._module.get_device_name
         self._attr_hvac_modes = [HVAC_MODE_HEAT,HVAC_MODE_OFF]
+      #  self.target_temperature = self._module.get_target_floor_temperature
         #self._attr_hvac_mode = HVAC_MODE_HEAT
 
-    def set_temperature(self, **kwargs):
+    def set_temperature(self, **kwargs) -> None:
+
         self._module.setTemperature(kwargs.get("temperature", self.target_temperature))
+        #self._module.setTemperature(kwargs.get("temperature"))
 
     @property
     def target_temperature_step(self) -> float:

@@ -1,6 +1,6 @@
 import requests
 import json
-
+import asyncio
 import logging
 from homeassistant.core import HomeAssistant
 
@@ -13,6 +13,7 @@ class SST:
         self._username = username
         self._password = password
         self.devices = []
+        self.hass = hass
 
 
     def pull_data(self):
@@ -42,7 +43,7 @@ class SST:
                 if json_device["type"] == 6:
                     self.devices.append(ThermostatEquation(json_device, self))
 
-#Thermostat Equation
+#Thermostat Equation EcoSmart 25
 class ThermostatEquation:
     def __init__(self,moduleDescription: json, sst: SST):
         self._sst = sst
@@ -56,6 +57,7 @@ class ThermostatEquation:
         self._current_temperature_floor = config["current_temperature"]["temperature_floor"]
         self._target_temperature = config["settings"]["temperature_manual"]
         self._status = config["settings"]["status"]
+
 
     def update(self) -> None:
         # Обновляем парметры модуля
@@ -118,6 +120,9 @@ class ThermostatEquation:
     def get_current_floor_temperature(self) -> int:
         return self._current_temperature_floor
 
+    @property
+    def get_current_air_temperature(self) -> int:
+        return self._current_temperature_air
     @property
     def get_target_floor_temperature(self) -> int:
         return self._target_temperature
