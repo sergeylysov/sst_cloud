@@ -25,7 +25,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     for module in sst1.devices:
         if module.get_device_type == 3:
             new_devices.append(Thermostat_equation(module))
-
+        if module.get_device_type == 6:
+            new_devices.append(Thermostat_equation(module))
     async_add_entities(new_devices)
 
 

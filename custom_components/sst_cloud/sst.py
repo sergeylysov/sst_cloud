@@ -39,6 +39,8 @@ class SST:
                     self.devices.append(NeptunProwWiFi(json_device, self))
                 if json_device["type"] == 3:
                     self.devices.append(ThermostatEquation(json_device, self))
+                if json_device["type"] == 6:
+                    self.devices.append(ThermostatEquation(json_device, self))
 
 #Thermostat Equation
 class ThermostatEquation:
