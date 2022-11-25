@@ -19,9 +19,8 @@ import logging
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass: HomeAssistant, config_entry, async_add_entities):
     sst1 = hass.data[DOMAIN][config_entry.entry_id]
-    hass = hass
     new_devices = []
     for module in sst1.devices:
         if module.get_device_type == 3:
@@ -32,20 +31,22 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
 
 class Thermostat_equation(ClimateEntity):
-    def __init__(self, module: sst.ThermostatEquation,hass):
+    def __init__(self, module: sst.ThermostatEquation,hass: HomeAssistant):
+
         self._module = module
-        self.hass = hass
+        self._hass1:HomeAssistant = hass
         self._attr_unique_id = f"{self._module.get_device_id}_Thermostat_equation"
         self._attr_name = self._module.get_device_name
         self._attr_hvac_modes = [HVAC_MODE_HEAT,HVAC_MODE_OFF]
-      #  self.target_temperature = self._module.get_target_floor_temperature
-        #self._attr_hvac_mode = HVAC_MODE_HEAT
 
-    def set_temperature(self, **kwargs) -> None:
 
-        self._module.setTemperature(kwargs.get("temperature", self.target_temperature))
-        #self._module.setTemperature(kwargs.get("temperature"))
-
+    async def async_set_temperature(self, **kwargs) -> None:
+        temp = kwargs.get("temperature", self.target_temperature)
+        self.target_temp = temp
+        await self._hass1.async_add_executor_job(
+            self.set_temperature,temp)
+    def set_temperature(self, temp):
+        self._module.setTemperature(temp)
     @property
     def target_temperature_step(self) -> float:
         """Return the supported step of target temperature."""

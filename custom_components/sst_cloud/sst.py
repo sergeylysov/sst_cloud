@@ -2,6 +2,7 @@ import requests
 import json
 import asyncio
 import logging
+import time
 from homeassistant.core import HomeAssistant
 
 SST_CLOUD_API_URL = "https://api.sst-cloud.com/"
@@ -13,7 +14,7 @@ class SST:
         self._username = username
         self._password = password
         self.devices = []
-        self.hass = hass
+        self.hass:HomeAssistant = hass
 
 
     def pull_data(self):
@@ -45,8 +46,10 @@ class SST:
 
 #Thermostat Equation EcoSmart 25
 class ThermostatEquation:
+
     def __init__(self,moduleDescription: json, sst: SST):
         self._sst = sst
+        self._hass:HomeAssistant = sst.hass
         config = json.loads(moduleDescription["parsed_configuration"])
         self._access_status = config["access_status"]
         self._id = moduleDescription["id"]
@@ -57,31 +60,33 @@ class ThermostatEquation:
         self._current_temperature_floor = config["current_temperature"]["temperature_floor"]
         self._target_temperature = config["settings"]["temperature_manual"]
         self._status = config["settings"]["status"]
-
+        self._update_flag = True
 
     def update(self) -> None:
         # Обновляем парметры модуля
-        response = requests.get(SST_CLOUD_API_URL +
-                                "houses/" + str(self._house_id) + "/devices/" + str(self._id),
-                                headers={"Authorization": "Token " + self._sst.key})
-        moduleDescription = json.loads(response.text)
-        config = json.loads(moduleDescription["parsed_configuration"])
-        self._access_status = config["access_status"]
-        self._device_name = moduleDescription["name"]
-        self._house_id = moduleDescription["house"]
-        self._type = moduleDescription["type"]  # 3
-        self._current_temperature_air = config["current_temperature"]["temperature_air"]
-        self._current_temperature_floor = config["current_temperature"]["temperature_floor"]
-        self._target_temperature = config["settings"]["temperature_manual"]
-        self._status = config["settings"]["status"]
+        #Пропускаем обновление после изменения температуры, т.к. после обновления сразу прилетает старое значение
+        if self._update_flag == True:
+            response = requests.get(SST_CLOUD_API_URL +
+                                    "houses/" + str(self._house_id) + "/devices/" + str(self._id),
+                                    headers={"Authorization": "Token " + self._sst.key})
+            moduleDescription = json.loads(response.text)
+            config = json.loads(moduleDescription["parsed_configuration"])
+            self._access_status = config["access_status"]
+            self._device_name = moduleDescription["name"]
+            self._house_id = moduleDescription["house"]
+            self._type = moduleDescription["type"]  # 3
+            self._current_temperature_air = config["current_temperature"]["temperature_air"]
+            self._current_temperature_floor = config["current_temperature"]["temperature_floor"]
+            self._target_temperature = config["settings"]["temperature_manual"]
+            self._status = config["settings"]["status"]
+        self._update_flag = True
     def setTemperature(self,temp) -> None:
+        self._update_flag = False
+        self._target_temperature = temp
         requests.post(SST_CLOUD_API_URL +
                       "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/temperature/",
-                      json={"temperature_manual": temp},
-                      headers={"Authorization": "Token " + self._sst.key})
-        self._target_temperature = temp
-
-
+                                                            json={"temperature_manual": temp},
+                                                            headers={"Authorization": "Token " + self._sst.key})
     def switchOn(self) -> None:
         requests.post(SST_CLOUD_API_URL +
                       "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/status/",
@@ -95,6 +100,10 @@ class ThermostatEquation:
                       headers={"Authorization": "Token " + self._sst.key})
         self._status="off"
 
+    def set_target_temp(self,temp):
+
+        self._target_temperature = temp
+        _LOGGER.warning(f"seted temp {self._target_temperature}")
     @property
     def get_status(self) -> str:
         return self._status

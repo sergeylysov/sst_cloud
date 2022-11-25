@@ -29,8 +29,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             new_devices.append(AirThemperatureSensor(module))
 
 
-            if new_devices:
-                async_add_entities(new_devices)
+    if new_devices:
+        async_add_entities(new_devices)
 
 
 class Counter(Entity):
