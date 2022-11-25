@@ -6,7 +6,8 @@ Unofficial SST Cloud integration for Home Assistant
 
 Не официальный плагин для интеграции с облаком SST Cloud
 
-На текущий момент работает только с защитой от протечек. Протестировано на модуле Neptun Smart и ProW+ WiFi.
+На текущий момент работает с защитой от протечек. Протестировано на модуле Neptun Smart и ProW+ WiFi. 
+А так же с терморегуляторами Equation и EcoSmart 25
 
 
 # Установка
