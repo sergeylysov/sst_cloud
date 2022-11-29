@@ -42,7 +42,7 @@ class SST:
                 if json_device["type"] == 3:
                     self.devices.append(ThermostatEquation(json_device, self))
                 if json_device["type"] == 6:
-                    self.devices.append(ThermostatEquation(json_device, self))
+                    self.devices.append(ThermostatEcosmart25(json_device, self))
 
 #Thermostat Equation EcoSmart 25
 class ThermostatEquation:
@@ -50,16 +50,17 @@ class ThermostatEquation:
     def __init__(self,moduleDescription: json, sst: SST):
         self._sst = sst
         self._hass:HomeAssistant = sst.hass
-        config = json.loads(moduleDescription["parsed_configuration"])
-        self._access_status = config["access_status"]
+        self.config = json.loads(moduleDescription["parsed_configuration"])
+        self._access_status = self.config["access_status"]
         self._id = moduleDescription["id"]
         self._device_name = moduleDescription["name"]
         self._house_id = moduleDescription["house"]
         self._type = moduleDescription["type"] #3
-        self._current_temperature_air = config["current_temperature"]["temperature_air"]
-        self._current_temperature_floor = config["current_temperature"]["temperature_floor"]
-        self._target_temperature = config["settings"]["temperature_manual"]
-        self._status = config["settings"]["status"]
+        self._current_temperature_air = self.config["current_temperature"]["temperature_air"]
+        self._current_temperature_floor = self.config["current_temperature"]["temperature_floor"]
+        self._target_temperature = self.config["settings"]["temperature_manual"]
+        self._status = self.config["settings"]["status"]
+        self._mode = self.config["settings"]["mode"]
         self._update_flag = True
 
     def update(self) -> None:
@@ -70,15 +71,16 @@ class ThermostatEquation:
                                     "houses/" + str(self._house_id) + "/devices/" + str(self._id),
                                     headers={"Authorization": "Token " + self._sst.key})
             moduleDescription = json.loads(response.text)
-            config = json.loads(moduleDescription["parsed_configuration"])
-            self._access_status = config["access_status"]
+            self.config = json.loads(moduleDescription["parsed_configuration"])
+            self._access_status = self.config["access_status"]
             self._device_name = moduleDescription["name"]
             self._house_id = moduleDescription["house"]
             self._type = moduleDescription["type"]  # 3
-            self._current_temperature_air = config["current_temperature"]["temperature_air"]
-            self._current_temperature_floor = config["current_temperature"]["temperature_floor"]
-            self._target_temperature = config["settings"]["temperature_manual"]
-            self._status = config["settings"]["status"]
+            self._current_temperature_air = self.config["current_temperature"]["temperature_air"]
+            self._current_temperature_floor = self.config["current_temperature"]["temperature_floor"]
+            self._target_temperature = self.config["settings"]["temperature_manual"]
+            self._status = self.config["settings"]["status"]
+            self._mode = self.config["settings"]["mode"]
         self._update_flag = True
     def setTemperature(self,temp) -> None:
         self._update_flag = False
@@ -88,17 +90,38 @@ class ThermostatEquation:
                                                             json={"temperature_manual": temp},
                                                             headers={"Authorization": "Token " + self._sst.key})
     def switchOn(self) -> None:
+        self._update_flag = False
+
         requests.post(SST_CLOUD_API_URL +
                       "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/status/",
                       json={"status": "on"},
                       headers={"Authorization": "Token " + self._sst.key})
         self._status="on"
     def switchOff(self) -> None:
+        self._update_flag = False
         requests.post(SST_CLOUD_API_URL +
                       "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/status/",
                       json={"status": "off"},
                       headers={"Authorization": "Token " + self._sst.key})
         self._status="off"
+
+    def switchToManual(self) -> None:
+        self._update_flag = False
+        requests.post(SST_CLOUD_API_URL +
+                      "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/mode/",
+                      json={"mode": "manual"},
+                      headers={"Authorization": "Token " + self._sst.key})
+        self._mode="manual"
+
+    def switchToChart(self) -> None:
+        self._update_flag = False
+        requests.post(SST_CLOUD_API_URL +
+                      "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/mode/",
+                      json={"mode": "chart"},
+                      headers={"Authorization": "Token " + self._sst.key})
+        self._mode="chart"
+
+
 
     def set_target_temp(self,temp):
 
@@ -135,7 +158,33 @@ class ThermostatEquation:
     @property
     def get_target_floor_temperature(self) -> int:
         return self._target_temperature
+    @property
+    def get_mode(self) -> str:
+        return self._mode
+    def get_config(self):
+        return self.config
 
+class ThermostatEcosmart25(ThermostatEquation):
+    def __init__(self,moduleDescription: json, sst: SST):
+        super().__init__(moduleDescription,sst)
+        self._bright = super().get_config()["settings"]["bright"]
+
+    def update(self) -> None:
+        super().update()
+        self._bright = super().get_config()["settings"]["bright"]
+
+    @property
+    def get_bright(self) -> int:
+        return self._bright
+
+    def set_bright(self,bright:int) -> None:
+        _LOGGER.warning(f"rq set bright {bright}")
+        self._update_flag = False
+        requests.post(SST_CLOUD_API_URL +
+                      "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/bright/",
+                      json={"bright": bright},
+                      headers={"Authorization": "Token " + self._sst.key})
+        self._bright = bright
 #Neptun ProW+ WiFi
 class NeptunProwWiFi:
     def __init__(self, moduleDescription: json, sst: SST):
