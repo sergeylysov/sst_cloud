@@ -20,6 +20,8 @@ async def async_setup_entry(hass: HomeAssistant, config_entry, async_add_entitie
     sst1 = hass.data[DOMAIN][config_entry.entry_id]
     new_devices = []
     for module in sst1.devices:
+        if module.get_device_type == 1:
+            new_devices.append(Thermostat_equation(module,hass))
         if module.get_device_type == 3:
             new_devices.append(Thermostat_equation(module,hass))
         if module.get_device_type == 6:

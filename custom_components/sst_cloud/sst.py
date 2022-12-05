@@ -39,7 +39,7 @@ class SST:
                     self.devices.append(LeakModule(json_device, self))
                 if json_device["type"] == 2:
                     self.devices.append(NeptunProwWiFi(json_device, self))
-                if json_device["type"] == 3:
+                if json_device["type"] == 3 or json_device["type"] == 1:
                     self.devices.append(ThermostatEquation(json_device, self))
                 if json_device["type"] == 6:
                     self.devices.append(ThermostatEcosmart25(json_device, self))
