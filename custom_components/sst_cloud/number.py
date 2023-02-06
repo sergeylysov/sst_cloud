@@ -8,7 +8,6 @@ from homeassistant.exceptions import PlatformNotReady
 import logging
 _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(hass, config_entry, async_add_entities):
-    _LOGGER.warning("number")
     sst1 = hass.data[DOMAIN][config_entry.entry_id]
     new_devices = []
     for module in sst1.devices:
@@ -19,7 +18,6 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
 class BrightSet(NumberEntity):
     def __init__(self, module,hass):
-        _LOGGER.warning("create new number")
         self._hass = hass
         self._module = module
         self._attr_unique_id = f"{self._module.get_device_id}_bright"
@@ -28,22 +26,21 @@ class BrightSet(NumberEntity):
         self._attr_max_value = 9
         self._attr_step = 1.0
 
-    async def async_set_value(self, value: float):
+    async def async_set_native_value(self, value: float):
        await self._hass.async_add_executor_job(self._module.set_bright,value)
 
     @property
-    def step(self):
+    def native_step(self):
          return self._attr_step
     @property
-    def max_value(self):
+    def native_max_value(self):
         return self._attr_max_value
 
     @property
-    def min_value(self):
+    def native_min_value(self):
         return self._attr_min_value
     @property
-    def value(self):
-        _LOGGER.warning("value")
+    def native_value(self):
         return self._module.get_bright
 
     @property
