@@ -3,6 +3,7 @@
   "name": "SST Cloud integration",
   "config_flow": true,
   "documentation": "https://github.com/sergeylysov/sst_cloud",
+  "issue_tracker": "https://github.com/sergeylysov/sst_cloud/issues",
   "requirements": ["requests","requests"],
   "ssdp": [],
   "zeroconf": [],
