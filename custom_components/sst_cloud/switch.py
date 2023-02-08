@@ -15,7 +15,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         if module.get_device_type == 7 or module.get_device_type == 2:
             if module.get_device_type == 7:
                 new_devices.append(WaterSwitchFirstGroup(module))
-                new_devices.append(WaterSwitchSecondGroup(module))
+                if module.get_grouping == "two_groups":
+                    new_devices.append(WaterSwitchSecondGroup(module))
             if module.get_device_type == 2:
                 new_devices.append(WaterSwitch(module))
             new_devices.append((Washing_floors_mode(module)))

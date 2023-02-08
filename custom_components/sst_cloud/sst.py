@@ -326,6 +326,7 @@ class LeakModule:
         self.first_group_alarm = config["module_settings"]["module_status"]["first_group_alarm"]
         self.second_group_alarm = config["module_settings"]["module_status"]["second_group_alarm"]
         self._washing_floors_mode = config["module_settings"]["module_status"]["washing_floors_mode"]
+        self._grouping = config["module_settings"]["module_config"]["grouping"]
         self.counters = []
         response = requests.get(SST_CLOUD_API_URL +
                                 "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/counters",
@@ -351,17 +352,29 @@ class LeakModule:
             self.wirelessLeakSensors.append(WirelessLeakSensor(wirelessSensorDesc))
 
     def close_valve_first_group(self):
-        requests.patch(SST_CLOUD_API_URL +
-                       "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/module_settings/",
-                       json={"module_config": {"first_group_valves_state": "closed"}},
-                       headers={"Authorization": "Token " + self._sst.key})
+        if self._grouping == "two_groups":
+            requests.patch(SST_CLOUD_API_URL +
+                           "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/module_settings/",
+                           json={"module_config": {"first_group_valves_state": "closed"}},
+                           headers={"Authorization": "Token " + self._sst.key})
+        else:
+            requests.patch(SST_CLOUD_API_URL +
+                           "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/",
+                           json={"configuration": "AlRRVwAJQwAGCAAAAAAAA18="},
+                           headers={"Authorization": "Token " + self._sst.key})
         self._first_group_valves_state = "closed"
 
     def open_valve_first_group(self):
-        requests.patch(SST_CLOUD_API_URL +
+        if self._grouping == "two_groups":
+            requests.patch(SST_CLOUD_API_URL +
                        "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/module_settings/",
                        json={"module_config": {"first_group_valves_state": "opened"}},
                        headers={"Authorization": "Token " + self._sst.key})
+        else:
+            requests.patch(SST_CLOUD_API_URL +
+                           "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/",
+                           json={"configuration": "AlRRVwAJQwAGCQAAAAAARv8="},
+                           headers={"Authorization": "Token " + self._sst.key})
         self._first_group_valves_state = "opened"
 
     def close_valve_second_group(self):
@@ -424,6 +437,9 @@ class LeakModule:
     @property
     def get_washing_floors_mode(self)-> str:
         return self._washing_floors_mode
+    @property
+    def get_grouping(self)-> str:
+        return self._grouping
 
     def update(self) -> None:
         # Обновляем парметры модуля
