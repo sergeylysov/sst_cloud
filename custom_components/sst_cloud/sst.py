@@ -359,8 +359,8 @@ class LeakModule:
                            headers={"Authorization": "Token " + self._sst.key})
         else:
             requests.patch(SST_CLOUD_API_URL +
-                           "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/",
-                           json={"configuration": "AlRRVwAJQwAGCAAAAAAAA18="},
+                           "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/module_settings/",
+                           json={"module_config":{"first_group_valves_state":"closed","second_group_valves_state":"closed"}},
                            headers={"Authorization": "Token " + self._sst.key})
         self._first_group_valves_state = "closed"
 
@@ -372,8 +372,8 @@ class LeakModule:
                        headers={"Authorization": "Token " + self._sst.key})
         else:
             requests.patch(SST_CLOUD_API_URL +
-                           "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/",
-                           json={"configuration": "AlRRVwAJQwAGCQAAAAAARv8="},
+                           "houses/" + str(self._house_id) + "/devices/" + str(self._id) + "/module_settings/",
+                           json={"module_config":{"first_group_valves_state":"opened","second_group_valves_state":"opened"}},
                            headers={"Authorization": "Token " + self._sst.key})
         self._first_group_valves_state = "opened"
 

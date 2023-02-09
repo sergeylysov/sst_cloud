@@ -34,10 +34,6 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
 
 class Counter(Entity):
-    _attr_unit_of_measurement = VOLUME_CUBIC_METERS
-   # _attr_state_class = SensorStateClass.TOTAL_INCREASING
-    _attr_state_class = SensorStateClass.TOTAL
-
     def __init__(self,counter: sst.Counter, module: sst.LeakModule):
         self._counter = counter
         self._module = module
@@ -50,7 +46,7 @@ class Counter(Entity):
 
     @property
     def device_info(self):
-        return {"identifiers": {(DOMAIN, self._module.get_device_id)}}
+        return {"identifiers": {(DOMAIN, self._module.get_device_id)}, "default_name": "Water Meter",}
 
     @property
     def icon(self):
@@ -61,6 +57,20 @@ class Counter(Entity):
         self._state = self._counter.counter_value/1000
         return self._state
 
+    @property
+    def device_class(self):
+        """The type of sensor"""
+        return SensorDeviceClass.WATER
+
+    @property
+    def unit_of_measurement(self):
+        """Unit of measurement of the sensor."""
+        return VOLUME_CUBIC_METERS
+
+    @property
+    def state_class(self):
+        """The state class of sensor"""
+        return SensorStateClass.TOTAL
 
 class WirelessLeakSensorBattery(Entity):
     _attr_unit_of_measurement = PERCENTAGE
