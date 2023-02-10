@@ -42,3 +42,18 @@ Unofficial SST Cloud integration for Home Assistant
 
 ![изображение](https://user-images.githubusercontent.com/18576858/187661824-b0b3ee11-983a-4e59-bf56-4277e97bb2e0.png)
 
+
+## Добавление счечиков для контроля потребляния воды в HA
+к сожалению HA почему то не видит SensorStateClass.TOTAL видимо поэтому не отображает в энергии.
+Есть обходной путь, добавить в configuration.yaml для каждого счетчика:
+```
+template:
+  - sensor:
+    - name: "water counter"
+    state: "{{ states('sensor.watercounter') }}"
+    unit_of_measurement: m³
+    device_class: water
+    state_class: total_increasing
+```
+Тогда будет еще одно устройство, которое уже можно добавить в энергию
+
