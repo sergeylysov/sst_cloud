@@ -188,9 +188,9 @@ class FirstGroupModuleAlert(Entity):
 
         self._module = module
         # Уникальный идентификатор
-        self._attr_unique_id = f"first_group_alarm_module_alert"
+        self._attr_unique_id = f"{self._module.get_device_id} first_group_alarm_module_alert"
         # Отображаемое имя
-        self._attr_name = f"Alert module first_group_alarm"
+        self._attr_name = f"{self._module.get_device_name} Alert module first_group_alarm"
         # Текущее значение
         if self._module.first_group_alarm == "yes":
             self._is_on = True
@@ -227,9 +227,9 @@ class SecondGroupModuleAlert(Entity):
 
         self._module = module
         # Уникальный идентификатор
-        self._attr_unique_id = f"second_group_alarm_module_alert"
+        self._attr_unique_id = f"{self._module.get_device_id} second_group_alarm_module_alert"
         # Отображаемое имя
-        self._attr_name = f"Alert module second_group_alarm"
+        self._attr_name = f"{self._module.get_device_name} Alert module second_group_alarm"
         # Текущее значение
         if self._module.second_group_alarm == "yes":
             self._is_on = True
