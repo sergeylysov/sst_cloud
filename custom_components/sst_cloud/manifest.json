@@ -9,6 +9,6 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/sergeylysov/sst_cloud/issues",
   "requirements": ["requests","requests"],
-  "version": "0.1.18",
+  "version": "0.1.19",
   "zeroconf": []
 }
