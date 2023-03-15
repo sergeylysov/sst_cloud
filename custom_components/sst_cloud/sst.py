@@ -58,7 +58,7 @@ class ThermostatEquation:
         self._device_name = moduleDescription["name"]
         self._house_id = moduleDescription["house"]
         self._type = moduleDescription["type"] #3
-        self._current_temperature_air = self.config["current_temperature"]["temperature_air"]
+        # self._current_temperature_air = self.config["current_temperature"]["temperature_air"]
         self._current_temperature_floor = self.config["current_temperature"]["temperature_floor"]
         self._target_temperature = self.config["settings"]["temperature_manual"]
         self._status = self.config["settings"]["status"]
@@ -78,7 +78,7 @@ class ThermostatEquation:
             self._device_name = moduleDescription["name"]
             self._house_id = moduleDescription["house"]
             self._type = moduleDescription["type"]  # 3
-            self._current_temperature_air = self.config["current_temperature"]["temperature_air"]
+            # self._current_temperature_air = self.config["current_temperature"]["temperature_air"]
             self._current_temperature_floor = self.config["current_temperature"]["temperature_floor"]
             self._target_temperature = self.config["settings"]["temperature_manual"]
             self._status = self.config["settings"]["status"]
@@ -153,9 +153,9 @@ class ThermostatEquation:
     def get_current_floor_temperature(self) -> int:
         return self._current_temperature_floor
 
-    @property
-    def get_current_air_temperature(self) -> int:
-        return self._current_temperature_air
+    # @property
+    # def get_current_air_temperature(self) -> int:
+    #     return self._current_temperature_air
     @property
     def get_target_floor_temperature(self) -> int:
         return self._target_temperature
