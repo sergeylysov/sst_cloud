@@ -24,6 +24,8 @@ async def async_setup_entry(hass: HomeAssistant, config_entry, async_add_entitie
             new_devices.append(Thermostat_equation(module,hass))
         if module.get_device_type == 3:
             new_devices.append(Thermostat_equation(module,hass))
+        if module.get_device_type == 5:
+            new_devices.append(Thermostat_equation(module,hass))
         if module.get_device_type == 6:
             new_devices.append(Thermostat_equation(module,hass))
     async_add_entities(new_devices)

@@ -43,6 +43,8 @@ class SST:
                     self.devices.append(ThermostatEquation(json_device, self))
                 if json_device["type"] == 6:
                     self.devices.append(ThermostatEcosmart25(json_device, self))
+                if json_device["type"] == 5:
+                    self.devices.append(ThermostatEcosmart25(json_device, self))
 
 #Thermostat Equation EcoSmart 25
 class ThermostatEquation:
@@ -126,7 +128,6 @@ class ThermostatEquation:
     def set_target_temp(self,temp):
 
         self._target_temperature = temp
-        _LOGGER.warning(f"seted temp {self._target_temperature}")
     @property
     def get_status(self) -> str:
         return self._status
