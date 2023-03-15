@@ -44,7 +44,7 @@ class SST:
                 if json_device["type"] == 6:
                     self.devices.append(ThermostatEcosmart25(json_device, self))
                 if json_device["type"] == 5:
-                    self.devices.append(ThermostatEcosmart25(json_device, self))
+                    self.devices.append(ThermostatEquation(json_device, self))
 
 #Thermostat Equation EcoSmart 25
 class ThermostatEquation:
