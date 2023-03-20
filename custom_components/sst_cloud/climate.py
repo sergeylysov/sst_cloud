@@ -36,7 +36,7 @@ class Thermostat_equation(ClimateEntity):
 
         self._module = module
         self._hass1:HomeAssistant = hass
-        self._attr_unique_id = f"{self._module.get_device_id}_Thermostat_equation"
+        self._attr_unique_id = f"{self._module.get_device_id}_{self._module.model_name}"
         self._attr_name = self._module.get_device_name
        # self._attr_hvac_modes = [HVAC_MODE_HEAT,HVAC_MODE_AUTO,HVAC_MODE_OFF]
         self._attr_hvac_modes = [HVACMode.AUTO,HVACMode.HEAT,HVACMode.OFF]
@@ -114,7 +114,7 @@ class Thermostat_equation(ClimateEntity):
             "identifiers": {(DOMAIN, self._module.get_device_id)},
             "name": self._module.get_device_name,
             "sw_version": "none",
-            "model": "Thermostat Equation",
+            "model": self._module.model_name,
             "manufacturer": "SST",
         }
 
