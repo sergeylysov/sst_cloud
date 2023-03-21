@@ -17,7 +17,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         if module.get_device_type == 7 or module.get_device_type == 2:
             if module.get_device_type == 7:
                 new_devices.append(MainModule(module))
-            if module.get_device_type == 2:
+            if module.get_device_type == 2 or module.get_device_type == 4:
                 new_devices.append(MainModuleNeptunProw(module))
             for leakSensor in module.leakSensors:
                 new_devices.append(LeakSensorAlert(leakSensor,module))
