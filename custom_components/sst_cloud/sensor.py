@@ -18,7 +18,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     #Создать все сенсоры, счетчики, датчики протечки
 
     for module in sst1.devices:
-        if module.get_device_type == 7 or module.get_device_type == 2:
+        if module.get_device_type == 7 or module.get_device_type == 2 or module.get_device_type == 4:
             for counter in module.counters:
                 new_devices.append(Counter(counter,module))
 
