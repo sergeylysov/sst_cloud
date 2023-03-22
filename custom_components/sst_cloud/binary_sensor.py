@@ -14,7 +14,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
     new_devices = []
     for module in sst1.devices:
-        if module.get_device_type == 7 or module.get_device_type == 2:
+        if module.get_device_type == 7 or module.get_device_type == 2 or module.get_device_type == 4:
             if module.get_device_type == 7:
                 new_devices.append(MainModule(module))
             if module.get_device_type == 2 or module.get_device_type == 4:
