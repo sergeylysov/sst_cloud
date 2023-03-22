@@ -311,7 +311,7 @@ class NeptunProwWiFi:
         self._access_status = config["access_status"]  # Main device "available" is true
         self._device_name = moduleDescription["name"]
         self._house_id = moduleDescription["house"]
-        self._type = moduleDescription["type"] #2
+        self._type = moduleDescription["type"] #2 or 4
         self._id = moduleDescription["id"]
         self._valves_state = config["settings"]["valve_settings"]
         self.alert_status = config["settings"]["status"]["alert"]
