@@ -619,7 +619,8 @@ class Counter:
     def update(self, countersJson: json) -> None:
         for counterJson in countersJson:
             if self._id == counterJson["id"]:
-               self._value = counterJson["value"]
+               if (counterJson["value"]/1000) >0:
+                  self._value = counterJson["value"]
 
 
 class LeakSensor:
