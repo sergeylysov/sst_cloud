@@ -47,7 +47,12 @@ class Counter(Entity):
 
     @property
     def device_info(self):
-        return {"identifiers": {(DOMAIN, self._module.get_device_id)}, "default_name": "Water Meter",}
+        return {"identifiers": {(DOMAIN, self._module.get_device_id)},
+                "name": "Water Meter",
+                "sw_version": "none",
+                "model": "Neptun Smart",
+                "manufacturer": "SST",
+                }
 
     @property
     def icon(self):
