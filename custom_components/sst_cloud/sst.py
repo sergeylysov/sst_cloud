@@ -39,7 +39,7 @@ class SST:
                     self.devices.append(LeakModule(json_device, self))
                 if json_device["type"] == 2 or json_device["type"] == 4:
                     self.devices.append(NeptunProwWiFi(json_device, self))
-                if json_device["type"] == 3 or json_device["type"] == 1:
+                if json_device["type"] == 3 or json_device["type"] == 1 or json_device["type"] == 0:
                     self.devices.append(ThermostatEquation(json_device, self))
                 if json_device["type"] == 6:
                     self.devices.append(ThermostatEcosmart25(json_device, self))
@@ -57,7 +57,7 @@ class ThermostatOKE20:
         self._id = moduleDescription["id"]
         self._device_name = moduleDescription["name"]
         self._house_id = moduleDescription["house"]
-        self._type = moduleDescription["type"] #3
+        self._type = moduleDescription["type"] #5
         self._current_temperature_floor = self.config["current_temperature"]["temperature_floor"]
         self._target_temperature = self.config["settings"]["temperature_manual"]
         self._status = self.config["settings"]["status"]
@@ -76,7 +76,7 @@ class ThermostatOKE20:
             self._access_status = self.config["access_status"]
             self._device_name = moduleDescription["name"]
             self._house_id = moduleDescription["house"]
-            self._type = moduleDescription["type"]  # 3
+            self._type = moduleDescription["type"]  # 5
             self._current_temperature_floor = self.config["current_temperature"]["temperature_floor"]
             self._target_temperature = self.config["settings"]["temperature_manual"]
             self._status = self.config["settings"]["status"]
