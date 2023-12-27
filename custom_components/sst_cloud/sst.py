@@ -278,7 +278,7 @@ class ThermostatOKE20:
     def get_config(self):
         return self.config
 
-#Thermostat Equation EcoSmart 25
+#Thermostat Equation
 class ThermostatEquation:
 
     def __init__(self,moduleDescription: json, sst: SST):
@@ -356,11 +356,11 @@ class ThermostatEquation:
                       headers={"Authorization": "Token " + self._sst.key})
         self._mode="chart"
 
-
-
-    def set_target_temp(self,temp):
-
-        self._target_temperature = temp
+    #
+    #
+    # def set_target_temp(self,temp):
+    #
+    #     self._target_temperature = temp
     @property
     def get_status(self) -> str:
         return self._status
@@ -398,6 +398,7 @@ class ThermostatEquation:
     def get_config(self):
         return self.config
 
+#Thermostat Ecosmart25
 class ThermostatEcosmart25(ThermostatEquation):
 
     def __init__(self,moduleDescription: json, sst: SST):
@@ -737,7 +738,7 @@ class Counter:
     def update(self, countersJson: json) -> None:
         for counterJson in countersJson:
             if self._id == counterJson["id"]:
-               if (counterJson["value"]/1000) >0:
+               if (counterJson["value"] > (self._value - 5000)) and (counterJson["value"] < (self._value + 5000)):
                   self._value = counterJson["value"]
 
 
