@@ -150,7 +150,7 @@ class ThermostatMCS300:
     def get_device_type(self) -> int:
         return self._type
     @property
-    def get_current_floor_temperature(self) -> int:
+    def get_current_temperature(self) -> int:
         return self._current_temperature
 
     @property
@@ -266,7 +266,7 @@ class ThermostatOKE20:
     def get_device_type(self) -> int:
         return self._type
     @property
-    def get_current_floor_temperature(self) -> int:
+    def get_current_temperature(self) -> int:
         return self._current_temperature_floor
 
     @property
@@ -383,7 +383,7 @@ class ThermostatEquation:
     def get_device_type(self) -> int:
         return self._type
     @property
-    def get_current_floor_temperature(self) -> int:
+    def get_current_temperature(self) -> int:
         return self._current_temperature_floor
 
     @property
@@ -404,15 +404,26 @@ class ThermostatEcosmart25(ThermostatEquation):
     def __init__(self,moduleDescription: json, sst: SST):
         super().__init__(moduleDescription,sst)
         self._bright = super().get_config()["settings"]["bright"]
+        self._sensor_air = super().get_config()["settings"]["sensor_set"]["air"] #selected/unselected
+        self._sensor_floor = super().get_config()["settings"]["sensor_set"]["floor"]  # selected/unselected
         self.model_name = "EcoSmart 25"
 
     def update(self) -> None:
         super().update()
         self._bright = super().get_config()["settings"]["bright"]
+        self._sensor_air = super().get_config()["settings"]["sensor_set"]["air"]  # selected/unselected
+        self._sensor_floor = super().get_config()["settings"]["sensor_set"]["floor"]  # selected/unselected
 
     @property
     def get_bright(self) -> int:
         return self._bright
+
+    @property
+    def get_current_temperature(self) -> int:
+        if self._sensor_air == "selected":
+            return self._current_temperature_air
+        if self._sensor_floor == "selected":
+            return self._current_temperature_floor
 
     def set_bright(self,bright:int) -> None:
         _LOGGER.warning(f"rq set bright {bright}")

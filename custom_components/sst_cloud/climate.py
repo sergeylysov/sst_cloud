@@ -104,7 +104,7 @@ class Thermostat_equation(ClimateEntity):
 
     @property
     def current_temperature(self) -> float:
-        return self._module.get_current_floor_temperature
+        return self._module.get_current_temperature
 
     @property
     def target_temperature(self) -> float:
