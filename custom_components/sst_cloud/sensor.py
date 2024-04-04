@@ -1,4 +1,4 @@
-from homeassistant.const import (VOLUME_CUBIC_METERS,PERCENTAGE,TEMP_CELSIUS)
+from homeassistant.const import (UnitOfVolume,PERCENTAGE,UnitOfTemperature)
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
@@ -71,7 +71,7 @@ class Counter(Entity):
     @property
     def unit_of_measurement(self):
         """Unit of measurement of the sensor."""
-        return VOLUME_CUBIC_METERS
+        return UnitOfVolume.CUBIC_METERS
 
     @property
     def state_class(self):
@@ -108,7 +108,7 @@ class WirelessLeakSensorBattery(Entity):
 
 
 class AirThemperatureSensor(Entity):
-    _attr_unit_of_measurement = TEMP_CELSIUS
+    _attr_unit_of_measurement = UnitOfTemperature.CELSIUS
     _attr_device_class = SensorDeviceClass.TEMPERATURE
     _attr_state_class = SensorStateClass.MEASUREMENT
 
@@ -137,7 +137,7 @@ class AirThemperatureSensor(Entity):
 
 
 class FloorThemperatureSensor(Entity):
-    _attr_unit_of_measurement = TEMP_CELSIUS
+    _attr_unit_of_measurement = UnitOfTemperature.CELSIUS
     _attr_device_class = SensorDeviceClass.TEMPERATURE
     _attr_state_class = SensorStateClass.MEASUREMENT
 
@@ -148,7 +148,7 @@ class FloorThemperatureSensor(Entity):
         # Отображаемое имя
         self._attr_name = f"FloorThemperatureSensor"
         # Текущее значение
-        self._state = self._module.get_current_floor_temperature
+        self._state = self._module.get_current_temperature
 
 
     @property
@@ -161,5 +161,5 @@ class FloorThemperatureSensor(Entity):
 
     @property
     def state(self):
-        self._state = self._module.get_current_floor_temperature
+        self._state = self._module.get_current_temperature
         return self._state

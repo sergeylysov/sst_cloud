@@ -1,7 +1,7 @@
 from homeassistant.components.climate import ClimateEntity, ClimateEntityDescription
 from homeassistant.helpers.entity import Entity
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import TEMP_CELSIUS, TEMP_FAHRENHEIT
+from homeassistant.const import UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.components.climate.const import (
@@ -42,7 +42,7 @@ class Thermostat_equation(ClimateEntity):
         self._attr_name = self._module.get_device_name
        # self._attr_hvac_modes = [HVAC_MODE_HEAT,HVAC_MODE_AUTO,HVAC_MODE_OFF]
         self._attr_hvac_modes = [HVACMode.AUTO,HVACMode.HEAT,HVACMode.OFF]
-
+        self._attr_supported_features = (ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.TURN_OFF | ClimateEntityFeature.TURN_ON)
     async def async_set_temperature(self, **kwargs) -> None:
         temp = kwargs.get("temperature", self.target_temperature)
         self.target_temp = temp
@@ -54,6 +54,11 @@ class Thermostat_equation(ClimateEntity):
     def target_temperature_step(self) -> float:
         """Return the supported step of target temperature."""
         return 1.0
+
+    def turn_on(self):
+        self._module.switchOn()
+    def turn_off(self):
+        self._module.switchOff()
 
     @property
     def hvac_mode(self) -> str:
@@ -68,15 +73,15 @@ class Thermostat_equation(ClimateEntity):
 
     def set_hvac_mode(self, hvac_mode: str) -> None:
         """Set new target hvac mode."""
-        _LOGGER.warning(f"set_hvac_mode {hvac_mode}")
+        # _LOGGER.warning(f"set_hvac_mode {hvac_mode}")
         if hvac_mode == HVACMode.OFF:
-            _LOGGER.warning("switch off")
+            # _LOGGER.warning("switch off")
             self._module.switchOff()
         if hvac_mode == HVACMode.HEAT:
             if self._module.get_status == "off":
                self._module.switchOn()
                time.sleep(5)
-               _LOGGER.warning(f"switchOn {hvac_mode}")
+               # _LOGGER.warning(f"switchOn {hvac_mode}")
             self._module.switchToManual()
         if hvac_mode == HVACMode.AUTO:
             if self._module.get_status == "off":
@@ -89,18 +94,18 @@ class Thermostat_equation(ClimateEntity):
 
 
 
-    @property
-    def supported_features(self) -> int:
-        """Return the list of supported features."""
-        features = ClimateEntityFeature.TARGET_TEMPERATURE
-        return features
+    # @property
+    # def supported_features(self) -> int:
+    #     """Return the list of supported features."""
+    #     features = ClimateEntityFeature.TARGET_TEMPERATURE|ClimateEntityFeature.TURN_OFF|ClimateEntityFeature.TURN_ON
+    #     return features
 
     def update(self) -> None:
         self._module.update()
 
     @property
     def temperature_unit(self) -> str:
-        return TEMP_CELSIUS
+        return UnitOfTemperature.CELSIUS
 
     @property
     def current_temperature(self) -> float:
