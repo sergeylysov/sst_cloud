@@ -23,8 +23,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                 new_devices.append(LeakSensorAlert(leakSensor,module))
             for wSensor in module.wirelessLeakSensors:
                 new_devices.append(WirelessLeakSensorAlert(wSensor,module))
+                new_devices.append(WirelessLeakSensorLost(wSensor, module))
                 if module.get_device_type == 7:
-                    new_devices.append(WirelessLeakSensorLost(wSensor,module))
                     new_devices.append(WirelessLeakSensorBatteryDischarge(wSensor,module))
             if module.get_device_type == 7:
                 new_devices.append(FirstGroupModuleAlert(module))

@@ -833,6 +833,7 @@ class WirelessLeakSensor443:
         self._battery_level = wirelessLeakSensorDescription["battery"]
         self._alert = wirelessLeakSensorDescription["attention"]
         self._line = wirelessLeakSensorDescription["line"]
+        self._signal_level = wirelessLeakSensorDescription["signal_level"]
         self._type = 443
 
 
@@ -860,8 +861,16 @@ class WirelessLeakSensor443:
     def get_wireless_leak_serial_number(self) -> str:
         return self._name + "line" + str(self._line)
 
+    @property
+    def get_wireless_leak_sensor_lost_status(self) -> bool:
+        if self._signal_level == 0:
+            return True
+        else:
+            return False
+
     def update(self, wireless_sensor_description: str):
         for sensor_desc in wireless_sensor_description:
             if sensor_desc["name"] == self._name:
                 self._battery_level = sensor_desc["battery"]
                 self._alert = sensor_desc["attention"]
+                self._signal_level = sensor_desc["signal_level"]
