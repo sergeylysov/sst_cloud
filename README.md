@@ -9,6 +9,8 @@ Unofficial SST Cloud integration for Home Assistant
 # Внимание!
 # При переходе на сервис https://atlasiot.ru/ интеграция работать перестанет, обратно на sst-cloud устройства перевести будет нельзя!
 
+## Есть альтернативный вариант интеграции Neptun Smart в Home Assistant https://github.com/klim123123/neptun_smart_homeassistant/
+
 
 Теперь доступна утсановка из каталога HACS
 
